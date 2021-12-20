@@ -1,5 +1,6 @@
 import { renderEventOfferTemplate } from './eventOfferTemplate';
 import dayjs from 'dayjs';
+import { createElement } from './../render';
 
 const renderEventOffers = (items) => {
   if (!items.length) {
@@ -14,30 +15,31 @@ const renderEventOffers = (items) => {
   }
 };
 
-export const eventItemTemplate = (point) => {
+const renderEventItemTemplate = (point) => {
+  const {date_from: dateFrom, date_to: dateTo, type, destination, offers, is_favorite: isFavorite, base_price: basePrice} = point;
   const template = `<li class="trip-events__item">
     <div class="event">
-      <time class="event__date" datetime="2019-03-18">${dayjs(point.date_from).format('MMM DD') }</time>
+      <time class="event__date" datetime="2019-03-18">${dayjs(dateFrom).format('MMM DD') }</time>
       <div class="event__type">
         <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
       </div>
-      <h3 class="event__title">${point.type} ${point.destination.name}</h3>
+      <h3 class="event__title">${type} ${destination.name}</h3>
       <div class="event__schedule">
         <p class="event__time">
-          <time class="event__start-time" datetime="${dayjs(point.date_from).format() }">${dayjs(point.date_from).format('hh:mm') }</time>
+          <time class="event__start-time" datetime="${dayjs(dateFrom).format() }">${dayjs(dateFrom).format('hh:mm') }</time>
           &mdash;
-          <time class="event__end-time" datetime="${dayjs(point.date_to).format() }">${dayjs(point.date_to).format('hh:mm') }</time>
+          <time class="event__end-time" datetime="${dayjs(dateTo).format() }">${dayjs(dateTo).format('hh:mm') }</time>
         </p>
-        <p class="event__duration">${dayjs(point.date_to).diff(point.date_from, 'hour') }H</p>
+        <p class="event__duration">${dayjs(dateTo).diff(dateFrom, 'hour') }H</p>
       </div>
       <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">${point.base_price}</span>
+        &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
       </p>
       <h4 class="visually-hidden">Offers:</h4>
       <ul class="event__selected-offers">
-        ${renderEventOffers(point.offers)}
+        ${renderEventOffers(offers)}
       </ul>
-      <button class="event__favorite-btn ${point.is_favorite ? 'event__favorite-btn--active' : ''}" type="button">
+      <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
         <span class="visually-hidden">Add to favorite</span>
         <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
           <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
@@ -51,4 +53,28 @@ export const eventItemTemplate = (point) => {
 
   return template;
 };
+export default class EventItemView {
+  #element = null;
+  #point = null;
+
+  constructor(point) {
+    this.#point = point;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return renderEventItemTemplate(this.#point);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
 

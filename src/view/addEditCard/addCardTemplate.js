@@ -1,6 +1,8 @@
 import { OFFER_TYPE } from '../../const/offerType';
 import { renderDestionationsTemplate } from '../destinationListTemplate';
 import { renderOfferSectionTempalte } from './offersSectionTemplate';
+import { createElement } from './../../render';
+
 import dayjs from 'dayjs';
 
 const renderTypeItem = (offerType) => (
@@ -19,7 +21,7 @@ const renderTypeItems = (offerTypes) => {
   return typeItemsTmpl;
 };
 
-export const renderAddCardTemplate = (point, index) => `<li class="trip-events__item">
+const renderAddCardTemplate = (point, index) => `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
@@ -76,3 +78,28 @@ export const renderAddCardTemplate = (point, index) => `<li class="trip-events__
     </section>
   </form>
 </li>`;
+
+export default class AddCardView {
+  #element = null;
+  #point = null;
+
+  constructor(point) {
+    this.#point = point;
+  }
+
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
+    }
+
+    return this.#element;
+  }
+
+  get template() {
+    return renderAddCardTemplate(this.#point);
+  }
+
+  removeElement() {
+    this.#element = null;
+  }
+}
