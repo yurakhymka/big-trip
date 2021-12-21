@@ -1,13 +1,13 @@
 import {RenderPosition, render} from './render.js';
 
-import TripInfoView from './view/tripInfoTemplate';
-import NavigationView from './view/navigationTemplate';
-import FiltersView from './view/filtersTemplate';
-import SortView from './view/sortTemplate';
-import EditCardView from './view/addEditCard/editCardTemplate.js';
-import EventItemView from './view/eventItemTemplate';
-import EventListView from './view/eventsListTemplate';
-import NoPointsView from './view/emptyListTemplate';
+import TripInfoView from './view/tripInfo-view';
+import NavigationView from './view/navigation-view';
+import FiltersView from './view/filters-view';
+import SortView from './view/sort-view';
+import EditCardView from './view/addEditCard/editCard-view.js';
+import EventItemView from './view/eventItem-view';
+import EventListView from './view/eventsList-view';
+import NoPointsView from './view/emptyList-view';
 
 import { generatePoint } from './mock/point';
 
@@ -48,13 +48,12 @@ const renderPoint = (pointsContainer, point) => {
     }
   };
 
-  eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+  eventComponent.setEditClickHandler(() => {
     replacePointToForm();
     document.addEventListener('keydown', onEscKeyDown);
   });
 
-  editEventComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-    evt.preventDefault();
+  editEventComponent.setSubmitHandler(() => {
     replaceFormToPoint();
     document.removeEventListener('keydown', onEscKeyDown);
   });

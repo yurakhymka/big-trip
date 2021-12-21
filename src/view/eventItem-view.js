@@ -1,6 +1,6 @@
 import { renderEventOfferTemplate } from './eventOfferTemplate';
 import dayjs from 'dayjs';
-import { createElement } from './../render';
+import AbstractView from './abstract-view';
 
 const renderEventOffers = (items) => {
   if (!items.length) {
@@ -53,28 +53,26 @@ const renderEventItemTemplate = (point) => {
 
   return template;
 };
-export default class EventItemView {
-  #element = null;
+export default class EventItemView extends AbstractView {
   #point = null;
 
   constructor(point) {
+    super();
     this.#point = point;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return renderEventItemTemplate(this.#point);
   }
 
-  removeElement() {
-    this.#element = null;
+  setEditClickHandler = (callback) => {
+    this._callback.editClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+  }
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.editClick();
   }
 }
 

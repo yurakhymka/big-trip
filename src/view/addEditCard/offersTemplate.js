@@ -11,8 +11,6 @@ const offerTemplate = (offer, index) => (
 
 export const renderOffers = (offers, index) => {
   let offersTempalte = '';
-  // eslint-disable-next-line no-console
-  console.log('offers', offers);
 
   offers[0].offers.forEach((element) => {
     offersTempalte += offerTemplate(element, index);

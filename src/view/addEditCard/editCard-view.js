@@ -1,7 +1,8 @@
 import { OFFER_TYPE } from '../../const/offerType';
 import { renderDestionationsTemplate } from '../destinationListTemplate';
 import { renderOfferSectionTempalte } from './offersSectionTemplate';
-import { createElement } from './../../render';
+import AbstractView from '../abstract-view';
+
 
 import dayjs from 'dayjs';
 
@@ -86,27 +87,25 @@ const renderEditCardTemplate = (point) => {
   return template;
 };
 
-export default class EditCardView {
-  #element = null;
+export default class EditCardView extends AbstractView{
   #point = null;
 
   constructor(point) {
+    super();
     this.#point = point;
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-
-    return this.#element;
   }
 
   get template() {
     return renderEditCardTemplate(this.#point);
   }
 
-  removeElement() {
-    this.#element = null;
+  setSubmitHandler = (callback) => {
+    this._callback.submit = callback;
+    this.element.querySelector('form').addEventListener('submit', this.#submitHandler);
+  }
+
+  #submitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.submit(evt);
   }
 }
