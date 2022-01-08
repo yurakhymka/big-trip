@@ -106,6 +106,16 @@ export default class EditCardView extends AbstractView{
 
   #submitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.submit(evt);
+    this._callback.submit(this.#point);
+  }
+
+  setCloseHandler = (callback) => {
+    this._callback.close = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeHandler);
+  }
+
+  #closeHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.close(evt);
   }
 }
