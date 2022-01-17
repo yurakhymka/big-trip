@@ -12,7 +12,7 @@ const offerTemplate = (offer, index) => (
 export const renderOffers = (offers, index) => {
   let offersTempalte = '';
 
-  offers[0].offers.forEach((element) => {
+  offers.forEach((element) => {
     offersTempalte += offerTemplate(element, index);
   });
 

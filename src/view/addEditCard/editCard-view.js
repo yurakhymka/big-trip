@@ -1,10 +1,34 @@
 import { OFFER_TYPE } from '../../const/offerType';
+import { DESTINATIONS } from '../../const/destination';
+import { offersData } from '../../mock/offer';
 import { renderDestionationsTemplate } from '../destinationListTemplate';
 import { renderOfferSectionTempalte } from './offersSectionTemplate';
-import AbstractView from '../abstract-view';
-
+import SmartView from './../smart-view';
+import flatpickr from 'flatpickr';
 
 import dayjs from 'dayjs';
+import '../../../node_modules/flatpickr/dist/flatpickr.min.css';
+
+const renderPictureTemplate = (picture) => (`
+  <img class="event__photo" src="${picture.src}" alt="${picture.description}">
+`);
+const renderPicturesTemplate = (pictures) => {
+  if (pictures.length === 0) {
+    return '';
+  }
+
+  let template = '';
+  pictures.forEach((item) => {
+    template += renderPictureTemplate(item);
+  });
+  return `
+    <div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${template}
+      </div>
+    </div>
+  `;
+};
 
 const renderTypeItem = (offerType) => (
   `<div class="event__type-item">
@@ -28,7 +52,7 @@ const renderEditCardTemplate = (point) => {
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
-        <label class="event__type  event__type-btn" for="event-type-toggle-1">
+        <label class="event__type  event__type-btn" for="event-type-toggle-${index + 1}">
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
         </label>
@@ -43,12 +67,12 @@ const renderEditCardTemplate = (point) => {
       </div>
 
       <div class="event__field-group  event__field-group--destination">
-        <label class="event__label  event__type-output" for="event-destination-1">
+        <label class="event__label  event__type-output" for="event-destination-${index + 1}">
           ${type}
         </label>
         <input class="event__input  event__input--destination" id="event-destination-${index + 1}" type="text" name="event-destination" value="${destination.name}" list="destination-list-${index + 1}">
         <datalist id="destination-list-${index + 1}">
-          ${renderDestionationsTemplate()}
+          ${renderDestionationsTemplate(destination)}
         </datalist>
       </div>
 
@@ -81,22 +105,37 @@ const renderEditCardTemplate = (point) => {
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
         <p class="event__destination-description">${destination.description}</p>
       </section>
+      ${renderPicturesTemplate(destination.pictures)}
     </section>
   </form>
 </li>`;
   return template;
 };
 
-export default class EditCardView extends AbstractView{
-  #point = null;
+export default class EditCardView extends SmartView {
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor(point) {
     super();
-    this.#point = point;
+    this._data = EditCardView.parseTaskToData(point);
+
+    this.#setInnerHandlers();
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
+  }
+
+  removeElement = () => {
+    super.removeElement();
+
+    this.#datepickerFrom.destroy();
+    this.#datepickerTo.destroy();
+    this.#datepickerFrom = null;
+    this.#datepickerTo = null;
   }
 
   get template() {
-    return renderEditCardTemplate(this.#point);
+    return renderEditCardTemplate(this._data);
   }
 
   setSubmitHandler = (callback) => {
@@ -106,7 +145,7 @@ export default class EditCardView extends AbstractView{
 
   #submitHandler = (evt) => {
     evt.preventDefault();
-    this._callback.submit(this.#point);
+    this._callback.submit(this._data);
   }
 
   setCloseHandler = (callback) => {
@@ -114,8 +153,111 @@ export default class EditCardView extends AbstractView{
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#closeHandler);
   }
 
+  #setInnerHandlers = () => {
+    this.element.querySelector('.event__input--price')
+      .addEventListener('input', this.#priceChangeHandler);
+    this.element.querySelector('.event__input--destination')
+      .addEventListener('change', this.#destinationChangeHandler);
+
+    this.#setPointTypeHandler();
+  }
+
   #closeHandler = (evt) => {
     evt.preventDefault();
     this._callback.close(evt);
+  }
+
+  restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.#setDatepickerFrom();
+    this.#setDatepickerTo();
+    this.setSubmitHandler(this._callback.submit);
+    this.setCloseHandler(this._callback.close);
+  }
+
+  #setDatepickerFrom = () => {
+    this.#datepickerFrom = flatpickr(
+      this.element.querySelector('[name=event-start-time]'),
+      {
+        enableTime: true,
+        dateFormat: 'd-m-y H:i',
+        defaultDate: this._data.date_from,
+        onChange: this.#dateFromChangeHandler, // На событие flatpickr передаём наш колбэк
+      },
+    );
+  }
+
+  #setDatepickerTo = () => {
+    this.#datepickerTo = flatpickr(
+      this.element.querySelector('[name=event-end-time]'),
+      {
+        enableTime: true,
+        dateFormat: 'd-m-y H:i',
+        defaultDate: this._data.date_to,
+        onChange: this.#dateToChangeHandler, // На событие flatpickr передаём наш колбэк
+      },
+    );
+  }
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateData({
+      // eslint-disable-next-line camelcase
+      date_from: userDate,
+    }, true);
+  }
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateData({
+      // eslint-disable-next-line camelcase
+      date_to: userDate,
+    }, true);
+  }
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+    const value = evt.target.value;
+    if (value.length) {
+      const price = parseInt(value, 10);
+      this.updateData({
+      // eslint-disable-next-line camelcase
+        base_price: price,
+      }, true);
+    }
+  }
+
+  #setPointTypeHandler = () => {
+    this.element.querySelectorAll('.event__type-input').forEach((item) => {
+      item.addEventListener('change', this.#pointTypeChangeHandler);
+    });
+  }
+
+  #pointTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    const selectedOffers = offersData.find((item) => item.type.toLowerCase() === evt.target.value);
+    this.updateData({
+      offers: selectedOffers.offers,
+      type: selectedOffers.type,
+    });
+  }
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    const selectedDestination = DESTINATIONS.find((item) => item.name === evt.target.value);
+    this.updateData({
+      destination: selectedDestination,
+    });
+  }
+
+  static parseTaskToData = (_data) => ({..._data,});
+
+  static parseDataToTask = (data) => {
+    const point = {...data};
+    return point;
+  }
+
+  reset = (point) => {
+    this.updateData(
+      EditCardView.parseTaskToData(point),
+    );
   }
 }

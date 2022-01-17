@@ -2,12 +2,11 @@ import { renderEventOfferTemplate } from './eventOfferTemplate';
 import dayjs from 'dayjs';
 import AbstractView from './abstract-view';
 
-const renderEventOffers = (items) => {
-  if (!items.length) {
+const renderEventOffers = (offers) => {
+  if (!offers.length) {
     return '';
   } else {
     let eventOfferTempl = '';
-    const offers = items[0].offers;
     for (let index = 0; index < offers.length; index++) {
       eventOfferTempl += renderEventOfferTemplate(offers[index]);
     }

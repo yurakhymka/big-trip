@@ -1,7 +1,7 @@
 import { DESTINATIONS } from './../const/destination';
 
 const renderDestionationTemplate = (destination) => (
-  `<option value="${destination}"></option>`
+  `<option value="${destination.name}"></option>`
 );
 
 export const renderDestionationsTemplate = () => {

@@ -33,7 +33,6 @@ export default class PointPresenter {
     this.#pointComponent = new EventItemView(point);
     this.#pointComponent.setEditClickHandler(this.#handleEditClick);
     this.#pointComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
-    
     this.#pointEditComponent = new EditCardView(point);
     this.#pointEditComponent.setSubmitHandler(this.#handleFormSubmit);
     this.#pointEditComponent.setCloseHandler(this.#handleFormClose);
@@ -60,12 +59,6 @@ export default class PointPresenter {
     remove(this.#pointEditComponent);
   }
 
-  resetView = () => {
-    if (this.#mode !== Mode.DEFAULT) {
-      this.#replaceFormToPoint();
-    }
-  }
-
   #replacePointToForm = () => {
     this.#pointsContainer.replaceChild(this.#pointEditComponent.element, this.#pointComponent.element);
     document.addEventListener('keydown', this.#escKeyDownHandler);
@@ -82,6 +75,7 @@ export default class PointPresenter {
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
+      this.resetView();
       this.#replaceFormToPoint();
     }
   }
@@ -97,13 +91,21 @@ export default class PointPresenter {
 
   #handleFormSubmit = (point) => {
     // eslint-disable-next-line no-console
-    console.log('change data', point);
+    console.log(point);
     this.#changeData(point);
     this.#replaceFormToPoint();
   }
 
   #handleFormClose = () => {
+    this.#pointEditComponent.reset(this.#point);
     this.#replaceFormToPoint();
+  }
+
+  resetView = () => {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
+    }
   }
 
 }

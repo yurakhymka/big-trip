@@ -1,10 +1,8 @@
 import dayjs from 'dayjs';
 import { getRandomInt } from './../utils';
-import { generateOffer } from './offer';
+import { offersData } from './offer';
 import { generateDestination } from './destination';
 import { OFFER_TYPE } from './../const/offerType';
-
-const offers =  Array.from(Array(getRandomInt(2, 4)), generateOffer);
 
 const generateDate = (later) => {
   const maxHoursGap = later ? 10 : 4;
@@ -12,6 +10,11 @@ const generateDate = (later) => {
   const hoursGap = getRandomInt(minHoursGap, maxHoursGap);
 
   return dayjs().add(hoursGap, 'hour').toDate();
+};
+
+const generateOffers = (type) => {
+  const data = offersData.find((item) => item.type === type);
+  return data.offers;
 };
 
 export const generatePoint = (index) => {
@@ -23,7 +26,7 @@ export const generatePoint = (index) => {
     'destination': generateDestination(),
     'id': index,
     'is_favorite': Boolean(getRandomInt(0, 1)),
-    'offers': offers.filter((item) => item.type === type),
+    'offers': generateOffers(type),
     'type': type
   };
 };
