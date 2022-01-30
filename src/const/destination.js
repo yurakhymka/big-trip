@@ -1,4 +1,4 @@
-import { getRandomInt } from './../utils';
+import { getRandomInt } from './../utils/utils';
 import { createRandomDescription } from './../mock/description';
 
 const destinations = ['Amsterdam', 'Chamonix', 'Geneva'];

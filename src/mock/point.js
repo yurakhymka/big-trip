@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { getRandomInt } from './../utils';
+import { getRandomInt } from './../utils/utils';
 import { offersData } from './offer';
 import { generateDestination } from './destination';
 import { OFFER_TYPE } from './../const/offerType';

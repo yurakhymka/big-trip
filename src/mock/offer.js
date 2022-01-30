@@ -1,4 +1,4 @@
-import { getRandomInt } from './../utils';
+import { getRandomInt } from './../utils/utils';
 import { OFFERS } from './../const/offers';
 import { OFFER_TYPE } from '../const/offerType';
 
